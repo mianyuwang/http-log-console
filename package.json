@@ -1,0 +1,15 @@
+{
+  "name": "http-log-console",
+  "version": "1.0.0",
+  "description": "A HTTP log monitoring console",
+  "main": "http_log_console.js",
+  "scripts": {
+    "test": "node http_log_console.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com-mianyuwang:mianyuwang/http-log-console"
+  },
+  "author": "Mianyu Wang",
+  "license": "ISC"
+}

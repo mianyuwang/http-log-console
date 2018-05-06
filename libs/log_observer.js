@@ -1,6 +1,9 @@
+(() => { // namespace
 'use strict';
 const events = require('events');
 const fs = require('fs');
+
+const CATEGORY = "@LogObserver";
 
 class LogObserver extends events.EventEmitter {
     /**
@@ -11,6 +14,12 @@ class LogObserver extends events.EventEmitter {
      */
     constructor(filename, options) {
         super(filename, options);
+        console.log("[INFO]", CATEGORY, "Initializing"); 
+        let defaultOptions = {
+            verbose: false,
+            delimiter: '\n',
+        };
+        this.options = {...options, ...defaultOptions};
         if (filename === undefined) {
             this.filename = "/var/log/access.log";
         } else {
@@ -30,27 +39,33 @@ class LogObserver extends events.EventEmitter {
     startWatch() {
         // tail -f the file with callback on the change
         fs.watchFile(this.filename, (curr, prev) => {
-            console.log("[DEBUG] File changed from", prev.size, curr.size);
+            console.log("[DEBUG]", CATEGORY, "File changed from", prev.size, curr.size);
             if (curr.size <= prev.size) {
-                console.log("[DEBUG] Ignoring no change.");
+                console.log("[DEBUG]", CATEGORY, "Ignoring no change.");
                 return;
             }
             let fstream = fs.createReadStream(
                 this.filename,
                 {start: prev.size, end: curr.size - 1});
             fstream.on('error', (error) => {
-                console.log("[DEBUG] fs.ReadStream error event:", error);
+                console.log("[DEBUG]", CATEGORY, "fs.ReadStream error event:", error);
                 this.emit('error', error);
             });
             fstream.on('end', () => {
-                console.log("[DEBUG] fs.ReadStream end event");
+                console.log("[DEBUG]", CATEGORY, "fs.ReadStream end event:");
             });
             fstream.on('data', (data) => {
-                console.log("[DEBUG] fs.ReadStream data event");
-                this.emit('line', data);
+                console.log("[DEBUG]", CATEGORY, "fs.ReadStream data event:");
+                // re-emit to multiple lines
+                ('' + data).split(this.options.delimiter).forEach(line => {
+                    if (line.length > 1) {
+                        this.emit('line', line);
+                    }
+                }, this);;
             });
         });
     };
 } // class LogObserver
 
 exports.LogObserver = LogObserver;
+})(); // close namepace

@@ -1,11 +1,16 @@
+(() => { // namespace
 'use strict';
+const CATEGORY = "@LogStats";
 
-function LogStats(config) {
-    console.log("[DEBUG] Initializing LogStats");
+class LogStats {
+    constructor(options) {
+        console.log("[INFO]", CATEGORY, "Initializing LogStats");
+    }
+
+    ingest (logline) {
+        console.log("[DEBUG]", CATEGORY, "Ingesting", logline);
+    }
 }
 
-LogStats.prototype.ingest = function(logline) {
-    console.log("[DEBUG] Ingesting", logline);
-};
-
 exports.LogStats = LogStats;
+})(); // close namepace

@@ -14,11 +14,12 @@ class LogObserver extends events.EventEmitter {
      */
     constructor(filename, options) {
         super(filename, options);
-        console.log("[INFO]", CATEGORY, "Initializing"); 
+        console.log("[INFO]", CATEGORY, "Initializing LogObserver ..."); 
         let defaultOptions = {
             verbose: false,
             delimiter: '\n',
         };
+        // merge defaultOption into customized options 
         this.options = {...options, ...defaultOptions};
         if (filename === undefined) {
             this.filename = "/var/log/access.log";
@@ -56,7 +57,7 @@ class LogObserver extends events.EventEmitter {
             });
             fstream.on('data', (data) => {
                 console.log("[DEBUG]", CATEGORY, "fs.ReadStream data event:");
-                // re-emit to multiple lines
+                // re-emit data chunk to multiple lines
                 ('' + data).split(this.options.delimiter).forEach(line => {
                     if (line.length > 1) {
                         this.emit('line', line);

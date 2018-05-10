@@ -19,3 +19,4 @@ A HTTP log monitoring console
   - Alert
 - CommandlineParser
 - Config
+- Logging

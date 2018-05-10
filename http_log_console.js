@@ -2,7 +2,7 @@
 'use strict';
 const lobs   = require('./libs/log_observer');
 const lstats = require('./libs/log_stats');
-const CATEGORY = "@Main";
+const CATEGORY = "@Console";
 
 // TODO: Use a commandline parser
 //       Use a professional logger library

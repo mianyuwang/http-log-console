@@ -13,6 +13,7 @@ class LogStats {
         let defaultOptions = {
             verbose: false,
             highTrafficThreshold: 10, // request per second
+            highTrafficDuration: 2,   // last 2 minutes
         };
         this.options = {...options, ...defaultOptions};
         // Stats
@@ -23,17 +24,17 @@ class LogStats {
         this.statusCodeCount = new Map(); // hash table of HTTP status code - count
 
         // Recurring timer to dump stats
-        this.interval = setInterval(this.dump.bind(this), 10000); // every 10s
+        this.interval = setInterval(this.print.bind(this), 10000); // every 10s
     }
     /**
      * Dump the stats to stdout
      */
-    dump() {
+    print() {
         console.log("[DEBUG]", CATEGORY, "Recurring event handler");
         console.log("Dumping statistics:", this.totalCount, this.sectionCount);
     }
     /**
-     * Ingest one log line
+     * Ingest a single log line
      * @param {String} logline 
      */
     ingest(logline) {
@@ -46,7 +47,7 @@ class LogStats {
                     ip: ip,
                     ident: ident,
                     userid: userid,
-                    time: time,
+                    timestr: time,
                     method: method,
                     url: url,
                     protocol: protocol,
@@ -66,8 +67,15 @@ class LogStats {
         // TODO: check overflow
         this.totalCount ++;
         this.totalBytes += curr.size;
+
+        // Parse the timestamp string into Date object
+        let now = new Date(
+            curr.timestr.replace(
+                /(\d+)\/(\w+)\/(\d+):(\d+:\d+:\d+) ([+-=]\d+)/,
+                "$2 $1 $3 $4 $5"));
+        console.log("[DEBUG]", CATEGORY, "Parsing timestr", curr.timestr, "into", now);
         
-        // Section parsing after removing site domain name
+        // Section parsing after removing site domain name like http://a.b.c/
         let sections = curr.url.replace(/.*:\/\/\w+(\.\w+)+/, "").split('/'); 
         let secKey = "";
         if (sections.length >= 3) {

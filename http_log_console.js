@@ -1,7 +1,7 @@
 (() => { // namespace
 'use strict';
-const lobs   = require('./libs/log_observer');
-const lstats = require('./libs/log_stats');
+const lobs   = require('log_observer');
+const lstats = require('log_stats');
 const CATEGORY = "@Console";
 
 // TODO: Use a commandline parser

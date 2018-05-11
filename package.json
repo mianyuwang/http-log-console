@@ -4,7 +4,8 @@
   "description": "A HTTP log monitoring console",
   "main": "http_log_console.js",
   "scripts": {
-    "test": "node http_log_console.js"
+    "start": "node http_log_console.js",
+    "test": "node http_log_console.js test/access.test.log"
   },
   "repository": {
     "type": "git",

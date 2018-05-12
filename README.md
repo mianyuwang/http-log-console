@@ -82,6 +82,6 @@ node console.js -t 5 -s 30 -i 15 test/access.log
 ### Test client
 There is a test client can write random logs into designated file in a given rate to simulate. Use another terminal and run
 ```
-node test/loggen.js -r 5 test/access.log
+node test/loggen.js -r 10 test/access.log
 ```
 adjust the -r parameter to test alert on and off behaviors.

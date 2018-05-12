@@ -29,6 +29,18 @@ class AlertQueue extends events.EventEmitter {
      * Dump the status about the alert queue
      */
     print() {
+        this.log.info(CATEGORY, "Alert queue status:");
+        console.log("  ============ ALERT =============");
+        console.log("  | Threshold is", this.threshold, "over", this.ttl, "seconds");
+        console.log("  | Activated:", this.alertOn);
+        console.log("  | Current Count:", this.sum);
+        let len = this.bucketQueue.length;
+        console.log("  | Queue Length:", len); // console.log("  | Queue:", this.bucketQueue);
+        console.log("  | Earliest:",
+                   len > 0 ? [new Date(this.bucketQueue[0][0] * 1000), this.bucketQueue[0][1]]: "null");
+        console.log("  | Latest:",
+                    len > 0 ? [new Date(this.bucketQueue[len-1][0] * 1000), this.bucketQueue[len-1][1]] : "null");
+        console.log("  --------------------------------");
     }
     /**
      * Push the current time into the queue
@@ -60,12 +72,15 @@ class AlertQueue extends events.EventEmitter {
         // emit alert events
         if (!this.alertOn && this.sum >= this.threshold) {
             this.alertOn = true;
+            this.print();
             this.emit("alert_on", { triggeringTime: now, 
                                     triggeringHits: this.sum,
                                     triggeringRate: this.sum/this.ttl });
+            return;
         }
         if (this.alertOn && this.sum < this.threshold) {
             this.alertOn = false;
+            this.print();
             this.emit("alert_off", { triggeringTime: now,
                                      triggeringHits: this.sum,
                                      triggeringRate: this.sum/this.ttl });

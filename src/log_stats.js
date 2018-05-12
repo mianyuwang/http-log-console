@@ -36,12 +36,12 @@ class LogStats {
                                                 this.log);
         this.alertQueue.on('alert_on', data => {
             log.warn(CATEGORY, "# High traffic generated an alert - hits = " + data.triggeringHits +
-                     ", rate = " + data.triggeringRate + "per second, triggered at", 
+                     ", rate = " + data.triggeringRate, "per second, triggered at", 
                      data.triggeringTime);
         });
         this.alertQueue.on('alert_off', data => {
             log.warn(CATEGORY, "# High traffic alert recovered - hits = " + data.triggeringHits +
-                     ", rate = " + data.triggeringRate + "per second, triggered at", 
+                     ", rate = " + data.triggeringRate, "per second, triggered at", 
                      data.triggeringTime);
         });
     }
@@ -50,7 +50,7 @@ class LogStats {
      */
     print() {
         this.log.info(CATEGORY, "Print statistics:");
-        console.log("  ================================");
+        console.log("  ============== STATS ==============");
         console.log("  | Total Hits =", this.totalCount);
         console.log("  | Total Bytes =", this.totalBytes);
         console.log("  | Last Log Received Time =", this.lastTimestamp);
@@ -61,10 +61,20 @@ class LogStats {
                 mostHit = val;
             }
         }
-        console.log("  | Most Hit Section = '" + mostHitSection + "', Hits =", mostHit);
+        console.log("  | In the last", this.options.interval, "seconds:");
+        console.log("  |   Most Hit Section = '" + mostHitSection + "', Hits =", mostHit);
+        this.sectionCountInterval.clear(); // reset the interval stat
+        mostHit = 0;
+        let mostHitStatus = "";
+        for (let [key, val] of this.statusCountInterval) {
+            if (val > mostHit) {
+                mostHitStatus = key;
+                mostHit = val;
+            }
+        }
+        console.log("  |   Most Returned Status = " + mostHitStatus + ", Hits =", mostHit);
+        this.statusCountInterval.clear(); // reset the interval stat
         console.log("  --------------------------------");
-        // reset the interval stat
-        this.sectionCountInterval.clear();
     }
     /**
      * Ingest a single log line
@@ -101,7 +111,7 @@ class LogStats {
         const log = this.log;
         // TODO: check overflow
         this.totalCount ++;
-        this.totalBytes += parseInt(curr.size);
+        this.totalBytes += parseFloat(curr.size);
 
         // Parse the timestamp string
         this.lastTimestamp = new Date(
@@ -116,7 +126,7 @@ class LogStats {
         let sections = curr.url.replace(/.*:\/\/\w+(\.\w+)+/, "").split('/'); 
         let secKey = "";
         if (sections.length >= 3) {
-            secKey = sections[0] + "/" + sections[1] + "/";
+            secKey = sections[0] + "/" + sections[1];
         } else if (sections.length == 2) { // <root>/resource
             secKey = "/";
         } else {

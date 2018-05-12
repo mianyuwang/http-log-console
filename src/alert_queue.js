@@ -16,8 +16,9 @@ class AlertQueue extends events.EventEmitter {
      * @param {*} threshold which triggers alert event
      * @param {*} span time to live of bucket
      */
-    constructor(thresholdps, span) {
-        super(thresholdps, span);
+    constructor(thresholdps, span, log) {
+        super();
+        this.log = log;
         this.threshold = thresholdps * span; // max total count within span
         this.ttl = span; // time to live
         this.alertOn = false; // alert status on or off
@@ -35,6 +36,7 @@ class AlertQueue extends events.EventEmitter {
      * @param {*} now the Date object
      */
     push(now) {
+        const log = this.log;
         let len = this.bucketQueue.length;
         let timestamp = now.getTime() / 1000;
         if (len > 0) {
@@ -43,7 +45,7 @@ class AlertQueue extends events.EventEmitter {
             } else if (timestamp === this.bucketQueue[len - 1][0]) {
                 this.bucketQueue[len - 1][1] ++;
             } else {
-                console.log("[INFO]", CATEGORY, "Ignored older timestamp", now);
+                log.info(CATEGORY, "Ignored older timestamp", now);
                 return;
             }
         } else {
@@ -54,8 +56,7 @@ class AlertQueue extends events.EventEmitter {
         while (timestamp - this.bucketQueue[0][0] > this.ttl) {
             this.sum -= this.bucketQueue.shift()[1];
         }
-        console.log("DEBUG", CATEGORY, "Upon", now, ",",
-                    this.sum, "in the queue.");
+        log.debug(CATEGORY, "Upon", now, ",", this.sum, "in the queue.");
         // emit alert events
         if (!this.alertOn && this.sum >= this.threshold) {
             this.alertOn = true;

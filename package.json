@@ -2,15 +2,19 @@
   "name": "http-log-console",
   "version": "1.0.0",
   "description": "A HTTP log monitoring console",
-  "main": "http_log_console.js",
+  "main": "console.js",
   "scripts": {
-    "start": "node http_log_console.js",
-    "test": "node http_log_console.js test/access.test.log"
+    "start": "node console.js",
+    "test": "node console.js test/access.test.log"
   },
   "repository": {
     "type": "git",
     "url": "github.com-mianyuwang:mianyuwang/http-log-console"
   },
   "author": "Mianyu Wang",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "basic-logger": "^0.4.4",
+    "commander": "^2.15.1"
+  }
 }

@@ -12,15 +12,14 @@ class LogObserver extends events.EventEmitter {
      * @param {Object} options 
      * @param {Object} logStats LogStats object to collect stats
      */
-    constructor(filename, options) {
-        super(filename, options);
-        console.log("[INFO]", CATEGORY, "Initializing LogObserver ..."); 
+    constructor(filename, log, options) {
+        super();
+        this.log = log;
         let defaultOptions = {
-            verbose: false,
             delimiter: '\n',
         };
-        // merge defaultOption into customized options 
-        this.options = {...options, ...defaultOptions};
+        this.options = {...defaultOptions, ...options};
+        log.info(CATEGORY, "Initializing LogObserver ...", this.options); 
         if (filename === undefined) {
             this.filename = "/var/log/access.log";
         } else {
@@ -38,25 +37,26 @@ class LogObserver extends events.EventEmitter {
      * Start watching file which will emit events for content change
      */
     startWatch() {
+        let log = this.log;
         // tail -f the file with callback on the change
         fs.watchFile(this.filename, (curr, prev) => {
-            console.log("[DEBUG]", CATEGORY, "File changed from", prev.size, curr.size);
+            log.debug(CATEGORY, "File changed from", prev.size, curr.size);
             if (curr.size <= prev.size) {
-                console.log("[DEBUG]", CATEGORY, "Ignoring no change.");
+                log.debug(CATEGORY, "Ignoring no change.");
                 return;
             }
             let fstream = fs.createReadStream(
                 this.filename,
                 {start: prev.size, end: curr.size - 1});
             fstream.on('error', (error) => {
-                console.log("[DEBUG]", CATEGORY, "fs.ReadStream error event:", error);
+                log.debug(CATEGORY, "fs.ReadStream error event:", error);
                 this.emit('error', error);
             });
             fstream.on('end', () => {
-                console.log("[DEBUG]", CATEGORY, "fs.ReadStream end event:");
+                log.debug(CATEGORY, "fs.ReadStream end event:");
             });
             fstream.on('data', (data) => {
-                console.log("[DEBUG]", CATEGORY, "fs.ReadStream data event:");
+                log.debug(CATEGORY, "fs.ReadStream data event:");
                 // re-emit data chunk to multiple lines
                 ('' + data).split(this.options.delimiter).forEach(line => {
                     if (line.length > 1) {

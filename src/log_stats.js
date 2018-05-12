@@ -74,7 +74,7 @@ class LogStats {
         }
         console.log("  |   Most Returned Status = " + mostHitStatus + ", Hits =", mostHit);
         this.statusCountInterval.clear(); // reset the interval stat
-        console.log("  --------------------------------");
+        console.log("  -----------------------------------");
     }
     /**
      * Ingest a single log line

@@ -5,7 +5,7 @@
   "main": "console.js",
   "scripts": {
     "start": "node console.js",
-    "test": "node console.js test/access.log"
+    "test": "node console.js -s 30 test/access.log"
   },
   "repository": {
     "type": "git",
